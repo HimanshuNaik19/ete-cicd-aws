@@ -3,6 +3,13 @@ const app = require('../app');
 
 describe('API Endpoints', () => {
 
+    // Close the server after all tests to prevent Jest from hanging
+    afterAll((done) => {
+        app.close(() => {
+            done();
+        });
+    });
+
     describe('GET /', () => {
         it('should return welcome message', async () => {
             const res = await request(app).get('/');
