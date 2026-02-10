@@ -6,8 +6,15 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest --coverage",
+    "test": "jest --coverage --forceExit --detectOpenHandles",
     "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testTimeout": 10000
   },
   "keywords": [
     "aws",
