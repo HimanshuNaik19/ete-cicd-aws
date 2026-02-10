@@ -1,0 +1,48 @@
+{
+    "name": "cicd-demo-build-project",
+    "description": "CodeBuild project for CI/CD pipeline demo",
+    "source": {
+        "type": "CODEPIPELINE",
+        "buildspec": "buildspec.yml"
+    },
+    "artifacts": {
+        "type": "CODEPIPELINE",
+        "name": "BuildArtifact"
+    },
+    "environment": {
+        "type": "LINUX_CONTAINER",
+        "image": "aws/codebuild/standard:5.0",
+        "computeType": "BUILD_GENERAL1_SMALL",
+        "environmentVariables": [
+            {
+                "name": "NODE_ENV",
+                "value": "production",
+                "type": "PLAINTEXT"
+            }
+        ],
+        "privilegedMode": false
+    },
+    "serviceRole": "arn:aws:iam::323069970632:role/CodeBuild-Service-Role",
+    "timeoutInMinutes": 60,
+    "queuedTimeoutInMinutes": 480,
+    "cache": {
+        "type": "S3",
+        "location": "ARTIFACT_BUCKET/build-cache"
+    },
+    "logsConfig": {
+        "cloudWatchLogs": {
+            "status": "ENABLED",
+            "groupName": "/aws/codebuild/cicd-demo"
+        }
+    },
+    "tags": [
+        {
+            "key": "Project",
+            "value": "CICD-Pipeline"
+        },
+        {
+            "key": "Environment",
+            "value": "Production"
+        }
+    ]
+}

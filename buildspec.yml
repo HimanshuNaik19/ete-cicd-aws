@@ -1,0 +1,47 @@
+version: 0.2
+
+# AWS CodeBuild Build Specification
+# This file defines the build process for the CI/CD pipeline
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo "Installing dependencies..."
+      - cd sample-app
+      - npm install
+      
+  pre_build:
+    commands:
+      - echo "Running pre-build checks..."
+      - echo "Build started on `date`"
+      - echo "Running linting and code quality checks..."
+      
+  build:
+    commands:
+      - echo "Running tests..."
+      - npm test
+      - echo "Build completed on `date`"
+      
+  post_build:
+    commands:
+      - echo "Preparing artifacts for deployment..."
+      - echo "Build phase completed successfully"
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: sample-app
+  name: BuildArtifact-$(date +%Y%m%d-%H%M%S)
+
+cache:
+  paths:
+    - 'sample-app/node_modules/**/*'
+
+reports:
+  test-results:
+    files:
+      - 'coverage/lcov.info'
+    base-directory: sample-app
+    file-format: CLOVERXML

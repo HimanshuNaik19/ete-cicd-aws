@@ -1,0 +1,43 @@
+version: 0.0
+os: linux
+
+# AWS CodeDeploy Application Specification
+# This file defines how the application should be deployed to EC2
+
+files:
+  - source: /
+    destination: /home/ec2-user/app
+
+permissions:
+  - object: /home/ec2-user/app
+    owner: ec2-user
+    group: ec2-user
+    mode: 755
+    type:
+      - directory
+      - file
+
+hooks:
+  # Stop the application before deployment
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: ec2-user
+
+  # Install dependencies before starting
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300
+      runas: root
+
+  # Start the application
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 300
+      runas: ec2-user
+
+  # Validate the deployment
+  ValidateService:
+    - location: scripts/validate_service.sh
+      timeout: 300
+      runas: ec2-user

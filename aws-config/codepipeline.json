@@ -1,0 +1,87 @@
+{
+    "pipeline": {
+        "name": "CICD-Demo-Pipeline",
+        "roleArn": "arn:aws:iam::323069970632:role/CodePipeline-Service-Role",
+        "artifactStore": {
+            "type": "S3",
+            "location": "ARTIFACT_BUCKET_NAME"
+        },
+        "stages": [
+            {
+                "name": "Source",
+                "actions": [
+                    {
+                        "name": "SourceAction",
+                        "actionTypeId": {
+                            "category": "Source",
+                            "owner": "AWS",
+                            "provider": "CodeStarSourceConnection",
+                            "version": "1"
+                        },
+                        "configuration": {
+                            "ConnectionArn": "arn:aws:codestar-connections:REGION:323069970632:connection/CONNECTION_ID",
+                            "FullRepositoryId": "HimanshuNaik19/ete-cicd-aws",
+                            "BranchName": "main",
+                            "OutputArtifactFormat": "CODE_ZIP"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceOutput"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Build",
+                "actions": [
+                    {
+                        "name": "BuildAction",
+                        "actionTypeId": {
+                            "category": "Build",
+                            "owner": "AWS",
+                            "provider": "CodeBuild",
+                            "version": "1"
+                        },
+                        "configuration": {
+                            "ProjectName": "cicd-demo-build-project"
+                        },
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceOutput"
+                            }
+                        ],
+                        "outputArtifacts": [
+                            {
+                                "name": "BuildOutput"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "name": "DeployAction",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "provider": "CodeDeploy",
+                            "version": "1"
+                        },
+                        "configuration": {
+                            "ApplicationName": "CICD-Demo-App",
+                            "DeploymentGroupName": "Production-Fleet"
+                        },
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildOutput"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

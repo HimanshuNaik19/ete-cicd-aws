@@ -1,0 +1,26 @@
+{
+    "applicationName": "CICD-Demo-App",
+    "computePlatform": "Server",
+    "deploymentGroupName": "Production-Fleet",
+    "deploymentConfigName": "CodeDeployDefault.OneAtATime",
+    "ec2TagFilters": [
+        {
+            "Type": "KEY_AND_VALUE",
+            "Key": "DeploymentGroup",
+            "Value": "Production-Fleet"
+        }
+    ],
+    "serviceRoleArn": "arn:aws:iam::323069970632:role/CodeDeploy-Service-Role",
+    "autoRollbackConfiguration": {
+        "enabled": true,
+        "events": [
+            "DEPLOYMENT_FAILURE",
+            "DEPLOYMENT_STOP_ON_ALARM"
+        ]
+    },
+    "deploymentStyle": {
+        "deploymentType": "IN_PLACE",
+        "deploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+    },
+    "loadBalancerInfo": {}
+}
