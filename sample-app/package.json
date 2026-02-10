@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest --coverage --forceExit --detectOpenHandles",
-    "test:watch": "jest --watch"
+    "test": "npx jest --coverage --forceExit --detectOpenHandles",
+    "test:watch": "npx jest --watch"
   },
   "jest": {
     "testEnvironment": "node",
