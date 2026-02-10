@@ -16,7 +16,10 @@ phases:
     commands:
       - echo "Running pre-build checks..."
       - echo "Build started on `date`"
-      - echo "Running linting and code quality checks..."
+      - echo "Verifying Jest installation..."
+      - ls -la node_modules/.bin/ | grep jest || echo "Jest not found in node_modules/.bin"
+      - which jest || echo "Jest not in PATH"
+      - npm list jest || echo "Jest not in dependencies"
       
   build:
     commands:
