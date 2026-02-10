@@ -4,6 +4,12 @@
 
 set -e
 
+# Setup logging
+LOGFILE="/var/log/codedeploy/install_dependencies.log"
+mkdir -p /var/log/codedeploy
+exec > >(tee -a "$LOGFILE") 2>&1
+echo "[$(date)] Starting BeforeInstall script"
+
 echo "=== Installing Node.js ==="
 
 # Check if Node.js is installed
