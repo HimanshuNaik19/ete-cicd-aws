@@ -19,7 +19,7 @@
                             "version": "1"
                         },
                         "configuration": {
-                            "ConnectionArn": "arn:aws:codestar-connections:REGION:323069970632:connection/CONNECTION_ID",
+                            "ConnectionArn": "arn:aws:codeconnections:us-east-1:323069970632:connection/b698b20e-78ee-44ce-83c6-12944250f949",
                             "FullRepositoryId": "HimanshuNaik19/ete-cicd-aws",
                             "BranchName": "main",
                             "OutputArtifactFormat": "CODE_ZIP"
