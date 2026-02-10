@@ -24,9 +24,15 @@ hooks:
       timeout: 300
       runas: ec2-user
 
-  # Install dependencies before starting
+  # Install Node.js and create directory
   BeforeInstall:
     - location: scripts/install_dependencies.sh
+      timeout: 300
+      runas: root
+
+  # Install npm dependencies after files are copied
+  AfterInstall:
+    - location: scripts/after_install.sh
       timeout: 300
       runas: root
 

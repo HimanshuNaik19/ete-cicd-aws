@@ -4,10 +4,10 @@
 
 set -e
 
-echo "=== Installing Node.js and dependencies ==="
+echo "=== Installing Node.js ==="
 
 # Check if Node.js is installed
-if ! command -v node &> /dev/null; then
+if ! command -v node &gt; /dev/null; then
     echo "Node.js not found. Installing Node.js 14.x..."
     
     # Install Node.js 14.x on Amazon Linux 2
@@ -22,14 +22,11 @@ else
     node --version
 fi
 
-# Navigate to application directory
-cd /home/ec2-user/app
-
-# Install application dependencies
-echo "Installing application dependencies..."
-npm install --production
+# Create application directory if it doesn't exist
+echo "Creating application directory..."
+mkdir -p /home/ec2-user/app
 
 # Set proper ownership
 chown -R ec2-user:ec2-user /home/ec2-user/app
 
-echo "=== Dependencies installed successfully ==="
+echo "=== Node.js setup complete ==="
