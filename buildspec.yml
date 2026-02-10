@@ -18,8 +18,9 @@ phases:
     commands:
       - echo "Building Angular frontend..."
       - cd frontend
+      - npm install -g @angular/cli@17
       - npm install
-      - npm run build -- --configuration production
+      - npx ng build --configuration production
       - echo "Frontend build complete"
       - cd ..
       
