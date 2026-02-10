@@ -47,4 +47,4 @@ process.on('SIGTERM', () => {
   });
 });
 
-module.exports = app;
+module.exports = server;
