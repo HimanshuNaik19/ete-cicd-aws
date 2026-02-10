@@ -10,7 +10,7 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - cd sample-app
-      - npm ci || npm install
+      - npm install --production=false
       
   pre_build:
     commands:
