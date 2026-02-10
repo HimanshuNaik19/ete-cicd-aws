@@ -4,7 +4,7 @@
         "roleArn": "arn:aws:iam::323069970632:role/CodePipeline-Service-Role",
         "artifactStore": {
             "type": "S3",
-            "location": "ARTIFACT_BUCKET_NAME"
+            "location": "cicd-pipeline-artifacts-323069970632"
         },
         "stages": [
             {

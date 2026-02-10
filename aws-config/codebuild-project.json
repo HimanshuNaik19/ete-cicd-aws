@@ -27,7 +27,7 @@
     "queuedTimeoutInMinutes": 480,
     "cache": {
         "type": "S3",
-        "location": "ARTIFACT_BUCKET/build-cache"
+        "location": "cicd-pipeline-artifacts-323069970632/build-cache"
     },
     "logsConfig": {
         "cloudWatchLogs": {
