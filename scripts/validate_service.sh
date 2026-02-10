@@ -1,47 +1,57 @@
 #!/bin/bash
-# Validate Service Script for CodeDeploy
-# This script runs during the ValidateService lifecycle event
-
 set -e
 
-echo "=== Validating application deployment ==="
+echo "=== Validating Service Deployment ==="
 
-# Wait for application to be fully ready
-sleep 10
+MAX_RETRIES=12
+RETRY_DELAY=5
 
-# Check if the process is running
-if ! pgrep -f "node.*app.js" > /dev/null; then
-    echo "ERROR: Application process is not running"
+# Function to check endpoint
+check_endpoint() {
+    local url=$1
+    local name=$2
+    
+    echo "Checking $name at $url..."
+    
+    for i in $(seq 1 $MAX_RETRIES); do
+        if curl -f -s -o /dev/null -w "%{http_code}" $url | grep -q "200"; then
+            echo "✓ $name is responding (attempt $i/$MAX_RETRIES)"
+            return 0
+        fi
+        
+        echo "Waiting for $name... (attempt $i/$MAX_RETRIES)"
+        sleep $RETRY_DELAY
+    done
+    
+    echo "✗ $name failed to respond after $MAX_RETRIES attempts"
+    return 1
+}
+
+# Check backend (Spring Boot)
+if ! check_endpoint "http://localhost:8080/health" "Backend API"; then
+    echo "Backend logs:"
+    tail -50 /home/ec2-user/app/backend.log
     exit 1
 fi
 
-echo "✓ Application process is running"
+# Check frontend (Nginx)
+if ! check_endpoint "http://localhost:80" "Frontend (Nginx)"; then
+    echo "Nginx logs:"
+    sudo tail -50 /var/log/nginx/error.log
+    exit 1
+fi
 
-# Test the health endpoint
-MAX_RETRIES=10
-RETRY_COUNT=0
+# Additional health check
+echo "Performing detailed health check..."
+HEALTH_RESPONSE=$(curl -s http://localhost:8080/health)
+echo "Health response: $HEALTH_RESPONSE"
 
-while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/health || echo "000")
-    
-    if [ "$HTTP_CODE" = "200" ]; then
-        echo "✓ Health check passed (HTTP $HTTP_CODE)"
-        
-        # Test the main endpoint
-        RESPONSE=$(curl -s http://localhost:3000/)
-        echo "✓ Application response: $RESPONSE"
-        
-        echo "=== Validation completed successfully ==="
-        exit 0
-    fi
-    
-    echo "Health check failed (HTTP $HTTP_CODE). Retrying in 3 seconds... ($((RETRY_COUNT + 1))/$MAX_RETRIES)"
-    sleep 3
-    RETRY_COUNT=$((RETRY_COUNT + 1))
-done
+if echo "$HEALTH_RESPONSE" | grep -q "healthy"; then
+    echo "✓ Application is healthy"
+else
+    echo "✗ Application health check failed"
+    exit 1
+fi
 
-echo "ERROR: Health check failed after $MAX_RETRIES attempts"
-echo "Application logs:"
-tail -n 50 /home/ec2-user/app/app.log
-
-exit 1
+echo "=== Validation successful ==="
+echo "Application is running and healthy!"

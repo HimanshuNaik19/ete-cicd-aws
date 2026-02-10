@@ -1,9 +1,6 @@
 version: 0.0
 os: linux
 
-# AWS CodeDeploy Application Specification
-# This file defines how the application should be deployed to EC2
-
 files:
   - source: /
     destination: /home/ec2-user/app
@@ -15,35 +12,41 @@ permissions:
     mode: 755
     type:
       - directory
+  - object: /home/ec2-user/app/scripts
+    owner: ec2-user
+    group: ec2-user
+    mode: 755
+    type:
+      - directory
+  - object: /home/ec2-user/app/scripts/*.sh
+    owner: ec2-user
+    group: ec2-user
+    mode: 755
+    type:
       - file
 
 hooks:
-  # Stop the application before deployment
-  ApplicationStop:
-    - location: scripts/stop_server.sh
-      timeout: 300
-      runas: ec2-user
-
-  # Install Node.js and create directory
   BeforeInstall:
     - location: scripts/install_dependencies.sh
-      timeout: 300
+      timeout: 600
       runas: root
-
-  # Install npm dependencies after files are copied
+      
   AfterInstall:
     - location: scripts/after_install.sh
       timeout: 300
       runas: root
-
-  # Start the application
+      
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: ec2-user
+      
   ApplicationStart:
     - location: scripts/start_server.sh
       timeout: 300
       runas: ec2-user
-
-  # Validate the deployment
+      
   ValidateService:
     - location: scripts/validate_service.sh
-      timeout: 300
+      timeout: 600
       runas: ec2-user

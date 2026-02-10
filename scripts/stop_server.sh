@@ -1,39 +1,25 @@
 #!/bin/bash
-# Stop Server Script for CodeDeploy
-# This script runs during the ApplicationStop lifecycle event
-
 set -e
 
-echo "=== Stopping application server ==="
+echo "=== Stopping Java Application ==="
 
-# Check if the application is running
-if pgrep -f "node.*app.js" > /dev/null; then
-    echo "Application is running. Stopping..."
-    
-    # Get the process ID
-    PID=$(pgrep -f "node.*app.js")
-    
-    # Send SIGTERM for graceful shutdown
-    kill -SIGTERM $PID
-    
-    # Wait for process to stop (max 30 seconds)
-    for i in {1..30}; do
-        if ! pgrep -f "node.*app.js" > /dev/null; then
-            echo "Application stopped gracefully"
-            exit 0
-        fi
-        sleep 1
-    done
+# Find and kill Java process
+JAVA_PID=$(pgrep -f "java.*cicd-app.jar" || echo "")
+
+if [ -n "$JAVA_PID" ]; then
+    echo "Stopping Java application (PID: $JAVA_PID)..."
+    kill $JAVA_PID || true
+    sleep 3
     
     # Force kill if still running
-    if pgrep -f "node.*app.js" > /dev/null; then
-        echo "Forcing application to stop..."
-        kill -9 $PID
+    if ps -p $JAVA_PID > /dev/null 2>&1; then
+        echo "Force killing Java application..."
+        kill -9 $JAVA_PID || true
     fi
     
-    echo "Application stopped"
+    echo "Java application stopped"
 else
-    echo "Application is not running. Nothing to stop."
+    echo "No Java application running"
 fi
 
-echo "=== Stop script completed ==="
+echo "=== Stop complete ==="

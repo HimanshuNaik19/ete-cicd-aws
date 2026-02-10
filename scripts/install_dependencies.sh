@@ -1,38 +1,23 @@
 #!/bin/bash
-# Install Dependencies Script for CodeDeploy
-# This script runs as root during the BeforeInstall lifecycle event
-
 set -e
 
-# Setup logging
-LOGFILE="/var/log/codedeploy/install_dependencies.log"
-mkdir -p /var/log/codedeploy
-exec > >(tee -a "$LOGFILE") 2>&1
-echo "[$(date)] Starting BeforeInstall script"
+echo "=== Installing Dependencies for Java + Angular Deployment ==="
 
-echo "=== Installing Node.js ==="
-
-# Check if Node.js is installed
-if ! command -v node &gt; /dev/null; then
-    echo "Node.js not found. Installing Node.js 14.x..."
-    
-    # Install Node.js 14.x on Amazon Linux 2
-    curl -sL https://rpm.nodesource.com/setup_14.x | bash -
-    yum install -y nodejs
-    
-    echo "Node.js installed successfully"
-    node --version
-    npm --version
-else
-    echo "Node.js is already installed"
-    node --version
+# Install Java 17 (Amazon Corretto)
+echo "Installing Java 17..."
+if ! command -v java &> /dev/null; then
+    sudo yum install -y java-17-amazon-corretto
 fi
 
-# Create application directory if it doesn't exist
-echo "Creating application directory..."
-mkdir -p /home/ec2-user/app
+java -version
 
-# Set proper ownership
-chown -R ec2-user:ec2-user /home/ec2-user/app
+# Install Nginx for Angular frontend
+echo "Installing Nginx..."
+if ! command -v nginx &> /dev/null; then
+    sudo amazon-linux-extras install -y nginx1
+    sudo systemctl enable nginx
+fi
 
-echo "=== Node.js setup complete ==="
+nginx -v
+
+echo "=== Dependencies installed successfully ==="

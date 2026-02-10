@@ -1,25 +1,25 @@
 #!/bin/bash
-# After Install Script for CodeDeploy
-# This script runs after files are copied to install npm dependencies
-
 set -e
 
-# Setup logging
-LOGFILE="/var/log/codedeploy/after_install.log"
-mkdir -p /var/log/codedeploy
-exec > >(tee -a "$LOGFILE") 2>&1
-echo "[$(date)] Starting AfterInstall script"
+echo "=== Configuring Nginx and Deploying Frontend ==="
 
-echo "=== Installing application dependencies ==="
+APP_DIR="/home/ec2-user/app"
 
-# Navigate to application directory
-cd /home/ec2-user/app
+# Copy Nginx configuration
+echo "Setting up Nginx configuration..."
+sudo cp $APP_DIR/nginx/nginx.conf /etc/nginx/conf.d/app.conf
 
-# Install production dependencies only
-echo "Installing npm packages..."
-npm install --production
+# Deploy Angular frontend
+echo "Deploying Angular frontend..."
+sudo rm -rf /usr/share/nginx/html/*
+sudo cp -r $APP_DIR/frontend/dist/frontend/browser/* /usr/share/nginx/html/ 2>/dev/null || \
+sudo cp -r $APP_DIR/frontend/dist/frontend/* /usr/share/nginx/html/
 
-# Set proper ownership
-chown -R ec2-user:ec2-user /home/ec2-user/app
+# Set permissions
+sudo chown -R nginx:nginx /usr/share/nginx/html/
+sudo chmod -R 755 /usr/share/nginx/html/
 
-echo "=== Dependencies installed successfully ==="
+# Test Nginx configuration
+sudo nginx -t
+
+echo "=== Nginx configuration complete ==="

@@ -1,324 +1,250 @@
-# End-to-End CI/CD Pipeline on AWS
+# AWS CI/CD Pipeline - Java Spring Boot + Angular
 
-[![AWS](https://img.shields.io/badge/AWS-CodePipeline-orange)](https://aws.amazon.com/codepipeline/)
-[![AWS](https://img.shields.io/badge/AWS-CodeBuild-orange)](https://aws.amazon.com/codebuild/)
-[![AWS](https://img.shields.io/badge/AWS-CodeDeploy-orange)](https://aws.amazon.com/codedeploy/)
-[![Node.js](https://img.shields.io/badge/Node.js-14.x-green)](https://nodejs.org/)
+Complete end-to-end CI/CD pipeline using AWS CodePipeline, CodeBuild, and CodeDeploy with a Java Spring Boot backend and Angular frontend.
 
-A complete, production-ready CI/CD pipeline using AWS native DevOps services that automatically pulls code from GitHub, builds the application, runs tests, and deploys to EC2 instances.
+## 🚀 Application Stack
 
-## 🎯 What This Project Demonstrates
-
-- **Automated CI/CD**: Full automation from code push to production deployment
-- **AWS Native Services**: CodePipeline, CodeBuild, CodeDeploy
-- **Infrastructure as Code**: Scripted setup for reproducibility
-- **Security Best Practices**: IAM roles with least-privilege access
-- **Monitoring & Logging**: CloudWatch integration
-- **Auto-Rollback**: Automatic rollback on deployment failures
-
-## 🏗️ Architecture
-
-```
-┌─────────────┐      ┌──────────────────┐      ┌─────────────┐
-│   GitHub    │─────▶│  CodePipeline    │─────▶│  CodeBuild  │
-│ Repository  │      │  (Orchestration) │      │   (Build)   │
-└─────────────┘      └──────────────────┘      └─────────────┘
-                              │                        │
-                              │                        ▼
-                              │                 ┌─────────────┐
-                              │                 │ S3 Artifacts│
-                              │                 └─────────────┘
-                              │                        │
-                              ▼                        │
-                     ┌──────────────────┐             │
-                     │   CodeDeploy     │◀────────────┘
-                     │   (Deployment)   │
-                     └──────────────────┘
-                              │
-                              ▼
-                     ┌──────────────────┐
-                     │  EC2 Instance(s) │
-                     │  (Production)    │
-                     └──────────────────┘
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- AWS Account with appropriate permissions
-- AWS CLI installed and configured
-- GitHub account
-- SSH key pair for EC2 access
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/ete-cicd-aws.git
-cd ete-cicd-aws
-```
-
-### 2. Set Up IAM Roles
-
-```bash
-# Create all required IAM roles
-./scripts/setup-iam-roles.sh
-```
-
-### 3. Create S3 Bucket
-
-```bash
-# Create artifact storage bucket
-chmod +x infrastructure/setup-s3.sh
-./infrastructure/setup-s3.sh
-```
-
-### 4. Launch EC2 Instance
-
-```bash
-# Update configuration in setup-ec2.sh first
-chmod +x infrastructure/setup-ec2.sh
-./infrastructure/setup-ec2.sh
-```
-
-### 5. Create Pipeline
-
-Follow the detailed instructions in [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)
+- **Backend:** Spring Boot 3.2 with Undertow (lightweight web server)
+- **Frontend:** Angular 17 with standalone components
+- **Web Server:** Nginx (reverse proxy + static file serving)
+- **Platform:** AWS EC2 t2.micro (optimized for 1GB RAM)
+- **CI/CD:** CodePipeline → CodeBuild → CodeDeploy
 
 ## 📁 Project Structure
 
 ```
 ete-cicd-aws/
-├── sample-app/              # Node.js application
-│   ├── app.js              # Express.js server
-│   ├── package.json        # Dependencies
-│   └── test/               # Jest unit tests
-├── scripts/                # Deployment lifecycle scripts
-│   ├── install_dependencies.sh
-│   ├── start_server.sh
-│   ├── stop_server.sh
-│   └── validate_service.sh
-├── iam/                    # IAM policies and roles
-│   ├── codepipeline-*.json
-│   ├── codebuild-*.json
-│   ├── codedeploy-*.json
-│   └── ec2-*.json
-├── infrastructure/         # Infrastructure setup scripts
-│   ├── setup-s3.sh
-│   ├── setup-ec2.sh
-│   └── user-data.sh
-├── aws-config/            # AWS service configurations
-│   ├── codebuild-project.json
-│   ├── codedeploy-application.json
-│   └── codepipeline.json
-├── docs/                  # Documentation
-│   ├── SETUP_GUIDE.md
-│   ├── ARCHITECTURE.md
-│   └── TROUBLESHOOTING.md
-├── buildspec.yml          # CodeBuild build specification
-├── appspec.yml            # CodeDeploy deployment specification
-└── README.md
+├── backend/                    # Java Spring Boot
+│   ├── src/main/java/
+│   ├── src/main/resources/
+│   ├── src/test/java/
+│   └── pom.xml
+├── frontend/                   # Angular 17
+│   ├── src/app/
+│   ├── src/environments/
+│   ├── angular.json
+│   └── package.json
+├── nginx/
+│   └── nginx.conf             # Reverse proxy config
+├── scripts/                   # Deployment scripts
+├── buildspec.yml              # CodeBuild configuration
+└── appspec.yml                # CodeDeploy configuration
 ```
 
-## 🔧 AWS Services Used
+## 🔧 Local Development
 
-| Service | Purpose | Cost |
-|---------|---------|------|
-| **CodePipeline** | Orchestrates the CI/CD workflow | 1 free pipeline/month |
-| **CodeBuild** | Builds and tests the application | 100 free minutes/month |
-| **CodeDeploy** | Deploys to EC2 instances | Free for EC2 |
-| **EC2** | Hosts the application | t2.micro free tier eligible |
-| **S3** | Stores pipeline artifacts | 5 GB free tier |
-| **IAM** | Access control and security | Free |
-| **CloudWatch** | Logging and monitoring | 5 GB free tier |
+### Prerequisites
+- Java 17
+- Maven 3.6+
+- Node.js 18+
+- Angular CLI 17
 
-## 📊 Pipeline Stages
-
-### 1. Source Stage
-- Monitors GitHub repository for changes
-- Automatically triggers on code push to main branch
-- Uses CodeStar Connections for GitHub integration
-
-### 2. Build Stage
-- Installs Node.js dependencies
-- Runs unit tests with Jest
-- Generates code coverage reports
-- Packages artifacts for deployment
-
-### 3. Deploy Stage
-- Deploys to EC2 instances tagged with deployment group
-- Runs lifecycle hooks (stop, install, start, validate)
-- Performs health checks
-- Auto-rollback on failure
-
-## 🧪 Testing the Application
-
-### Local Testing
+### Backend (Spring Boot)
 
 ```bash
-cd sample-app
+cd backend
+mvn clean install
+mvn spring-boot:run
+```
+
+Backend runs on `http://localhost:8080`
+
+**API Endpoints:**
+- `GET /` - Welcome message
+- `GET /health` - Health check with memory info
+- `GET /api/info` - Application information
+
+### Frontend (Angular)
+
+```bash
+cd frontend
 npm install
-npm test
 npm start
 ```
 
-Access at `http://localhost:3000`
+Frontend runs on `http://localhost:4200`
 
-### Endpoints
-
-- `GET /` - Welcome message
-- `GET /health` - Health check
-- `GET /api/info` - Application information
-
-### After Deployment
+### Run Tests
 
 ```bash
-# Get EC2 instance IP
-INSTANCE_IP=$(aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=CICD-App-Server" \
-  --query 'Reservations[0].Instances[0].PublicIpAddress' \
-  --output text)
+# Backend tests
+cd backend
+mvn test
 
-# Test endpoints
-curl http://$INSTANCE_IP:3000
-curl http://$INSTANCE_IP:3000/health
-curl http://$INSTANCE_IP:3000/api/info
+# Frontend tests
+cd frontend
+npm test
+```
+
+## 🏗️ Build Process
+
+### CodeBuild Steps
+
+1. **Install Phase:** Java 17 + Node.js 18
+2. **Pre-build:** Build Angular frontend (`npm run build`)
+3. **Build:** Build Spring Boot backend (`mvn package`)
+4. **Artifacts:** Package both frontend and backend
+
+### Memory Optimization for t2.micro
+
+**Spring Boot JVM Settings:**
+```
+-Xmx256m -Xms128m -XX:+UseSerialGC
+```
+
+**Undertow Configuration:**
+- IO threads: 2
+- Worker threads: 8
+- Buffer size: 512 bytes
+
+## 🚀 Deployment Architecture
+
+```
+User Request → Nginx (Port 80)
+                ├─→ Static Files (Angular)
+                └─→ /api/* → Spring Boot (Port 8080)
+```
+
+**Nginx Configuration:**
+- Serves Angular SPA from `/usr/share/nginx/html/`
+- Proxies `/api/*` and `/health` to Spring Boot on port 8080
+- Handles SPA routing (all routes → index.html)
+
+## 📊 Pipeline Stages
+
+### 1. Source
+- **Trigger:** Push to `main` branch
+- **Source:** GitHub via CodeStar Connection
+
+### 2. Build
+- **Duration:** ~3-5 minutes
+- **Actions:**
+  - Install dependencies
+  - Build Angular (production mode)
+  - Build Spring Boot (run tests)
+  - Cache Maven & npm dependencies
+
+### 3. Deploy
+- **Target:** EC2 with tag `DeploymentGroup=Production-Fleet`
+- **Steps:**
+  1. Install Java 17 & Nginx
+  2. Deploy Angular to Nginx
+  3. Stop old Java process
+  4. Start new Spring Boot app
+  5. Validate health endpoints
+
+## 🔍 Monitoring
+
+### Health Check
+```bash
+curl http://YOUR_EC2_IP/health
+```
+
+Response:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-11T...",
+  "uptime": 123.45,
+  "memory": {
+    "max": "256 MB",
+    "used": "128 MB",
+    "free": "128 MB"
+  }
+}
+```
+
+### Application Logs
+```bash
+# Backend logs
+tail -f /home/ec2-user/app/backend.log
+
+# Nginx logs
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+```
+
+## 🎯 Key Features
+
+✅ **Optimized for t2.micro** - Runs comfortably in 1GB RAM  
+✅ **Automated Testing** - JUnit + Karma tests in pipeline  
+✅ **Zero Downtime** - Graceful shutdown and startup  
+✅ **Health Monitoring** - Real-time memory and uptime tracking  
+✅ **SPA Support** - Nginx handles Angular routing  
+✅ **API Proxy** - Clean separation of frontend/backend  
+
+## 🔐 Security Group Ports
+
+- **22** - SSH
+- **80** - HTTP (Nginx)
+- **8080** - Spring Boot (optional, for direct access)
+
+## 📝 Environment Variables
+
+### Development
+- `apiUrl: 'http://localhost:8080'`
+
+### Production
+- `apiUrl: ''` (empty = same origin, Nginx proxies)
+
+## 🐛 Troubleshooting
+
+### Build Fails
+```bash
+# Check CodeBuild logs in AWS Console
+# Common issues:
+# - Maven dependency resolution
+# - Angular build errors
+# - Test failures
+```
+
+### Deployment Fails
+```bash
+# SSH into EC2
+ssh -i your-key.pem ec2-user@YOUR_EC2_IP
+
+# Check Java process
+ps aux | grep java
+
+# Check Nginx
+sudo systemctl status nginx
+
+# View logs
+tail -50 /home/ec2-user/app/backend.log
+```
+
+### Application Not Responding
+```bash
+# Check if Spring Boot is running
+curl http://localhost:8080/health
+
+# Check if Nginx is running
+curl http://localhost:80
+
+# Restart services
+sudo systemctl restart nginx
+# Kill and restart Java manually if needed
 ```
 
 ## 📚 Documentation
 
-- **[Setup Guide](docs/SETUP_GUIDE.md)** - Step-by-step setup instructions
-- **[Architecture](docs/ARCHITECTURE.md)** - Detailed architecture documentation
-- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
 
-## 🔒 Security Features
+## 🎓 What You'll Learn
 
-- **IAM Roles**: Least-privilege access policies for all services
-- **Encryption**: S3 bucket encryption at rest (AES-256)
-- **No Hardcoded Credentials**: Uses IAM roles and instance profiles
-- **Security Groups**: Minimal port exposure
-- **Audit Logging**: CloudTrail integration for compliance
+- Building full-stack applications with Java + Angular
+- Optimizing Spring Boot for low-memory environments
+- Configuring Nginx as a reverse proxy
+- AWS CI/CD pipeline automation
+- Infrastructure as Code principles
+- Automated testing in CI/CD
 
-## 💰 Cost Estimate
+## 📄 License
 
-**Free Tier Usage**: ~$0/month (within free tier limits)
-
-**Beyond Free Tier**:
-- EC2 t2.micro: ~$8.50/month
-- S3 storage: ~$0.023/GB/month
-- CodeBuild: $0.005/build minute
-- Data transfer: Variable
-
-**Cost Optimization Tips**:
-- Use S3 lifecycle policies to delete old artifacts
-- Stop EC2 instances when not in use (dev/test)
-- Enable CodeBuild caching to reduce build time
-
-## 🔄 CI/CD Workflow
-
-```mermaid
-graph LR
-    A[Developer] -->|1. Push Code| B[GitHub]
-    B -->|2. Webhook| C[CodePipeline]
-    C -->|3. Trigger| D[CodeBuild]
-    D -->|4. Run Tests| D
-    D -->|5. Upload| E[S3 Artifacts]
-    E -->|6. Download| F[CodeDeploy]
-    F -->|7. Deploy| G[EC2 Instance]
-    G -->|8. Validate| G
-    G -->|9. Success| H[Production]
-```
-
-## 🚦 Deployment Lifecycle
-
-1. **ApplicationStop**: Stop the running application
-2. **BeforeInstall**: Install Node.js and dependencies
-3. **ApplicationStart**: Start the application
-4. **ValidateService**: Run health checks
-
-## 📈 Monitoring & Logs
-
-### CloudWatch Logs
-
-- `/aws/codebuild/cicd-demo` - Build logs
-- `/aws/codedeploy/` - Deployment logs
-- `/aws/ec2/` - Application logs
-
-### Viewing Logs
-
-```bash
-# CodeBuild logs
-aws logs tail /aws/codebuild/cicd-demo --follow
-
-# Application logs (on EC2)
-ssh -i ~/.ssh/YOUR_KEY.pem ec2-user@INSTANCE_IP
-tail -f /home/ec2-user/app/app.log
-```
-
-## 🔧 Customization
-
-### Change Deployment Strategy
-
-Edit `aws-config/codedeploy-application.json`:
-- `CodeDeployDefault.OneAtATime` - Deploy to one instance at a time
-- `CodeDeployDefault.HalfAtATime` - Deploy to half the instances
-- `CodeDeployDefault.AllAtOnce` - Deploy to all instances simultaneously
-
-### Add Manual Approval
-
-Add an approval stage to the pipeline:
-
-```json
-{
-  "name": "Approval",
-  "actions": [{
-    "name": "ManualApproval",
-    "actionTypeId": {
-      "category": "Approval",
-      "owner": "AWS",
-      "provider": "Manual",
-      "version": "1"
-    }
-  }]
-}
-```
-
-## 🎓 Learning Outcomes
-
-After completing this project, you will understand:
-
-- ✅ AWS CodePipeline orchestration
-- ✅ CodeBuild build automation
-- ✅ CodeDeploy deployment strategies
-- ✅ IAM roles and policies
-- ✅ EC2 instance management
-- ✅ S3 artifact storage
-- ✅ CloudWatch logging and monitoring
-- ✅ CI/CD best practices
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🔗 References
-
-- [AWS CodePipeline Documentation](https://docs.aws.amazon.com/codepipeline/)
-- [AWS CodeBuild Documentation](https://docs.aws.amazon.com/codebuild/)
-- [AWS CodeDeploy Documentation](https://docs.aws.amazon.com/codedeploy/)
-- [CodeBuild buildspec Reference](https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html)
-- [CodeDeploy appspec Reference](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file.html)
-
-## 📧 Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Check the [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
-- Refer to AWS documentation
+MIT License - feel free to use this as a template for your own projects!
 
 ---
 
-**Built with ❤️ using AWS DevOps Services**
+**Built with ❤️ for learning AWS DevOps**

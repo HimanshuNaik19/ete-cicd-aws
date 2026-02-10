@@ -1,50 +1,48 @@
 version: 0.2
 
-# AWS CodeBuild Build Specification
-# This file defines the build process for the CI/CD pipeline
+# AWS CodeBuild Build Specification for Java Spring Boot + Angular
+# Optimized for t2.micro (1GB RAM)
 
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      java: corretto17
+      nodejs: 18
     commands:
-      - echo "Installing dependencies..."
-      - cd sample-app
-      - npm install --production=false
+      - echo "Installing build tools..."
+      - echo "Java version:" && java -version
+      - echo "Node version:" && node --version
+      - echo "Maven version:" && mvn --version
       
   pre_build:
     commands:
-      - echo "Running pre-build checks..."
-      - echo "Build started on `date`"
-      - echo "Verifying Jest installation..."
-      - ls -la node_modules/.bin/ | grep jest || echo "Jest not found in node_modules/.bin"
-      - which jest || echo "Jest not in PATH"
-      - npm list jest || echo "Jest not in dependencies"
+      - echo "Building Angular frontend..."
+      - cd frontend
+      - npm install
+      - npm run build -- --configuration production
+      - echo "Frontend build complete"
+      - cd ..
       
   build:
     commands:
-      - echo "Running tests..."
-      - npm test
-      - echo "Build completed on `date`"
+      - echo "Building Spring Boot backend..."
+      - cd backend
+      - mvn clean package -DskipTests=false
+      - echo "Backend build complete"
+      - ls -la target/
+      - cd ..
       
   post_build:
     commands:
-      - echo "Preparing artifacts for deployment..."
-      - echo "Build phase completed successfully"
+      - echo "Build completed successfully"
+      - echo "Preparing artifacts..."
 
 artifacts:
   files:
     - '**/*'
-  base-directory: sample-app
   name: BuildArtifact-$(date +%Y%m%d-%H%M%S)
 
 cache:
   paths:
-    - 'sample-app/node_modules/**/*'
-
-reports:
-  test-results:
-    files:
-      - 'coverage/lcov.info'
-    base-directory: sample-app
-    file-format: CLOVERXML
+    - '/root/.m2/**/*'           # Maven dependencies
+    - 'frontend/node_modules/**/*'  # npm packages
