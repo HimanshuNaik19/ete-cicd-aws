@@ -1,14 +1,32 @@
-# AWS CI/CD Pipeline - Java Spring Boot + Angular
+# End-to-End CI/CD Pipeline with Java Spring Boot & Angular
 
-Complete end-to-end CI/CD pipeline using AWS CodePipeline, CodeBuild, and CodeDeploy with a Java Spring Boot backend and Angular frontend.
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-## 🚀 Application Stack
+A complete, production-ready CI/CD pipeline implementation demonstrating modern DevOps practices on AWS. This project automates the build, test, and deployment process for a full-stack Java Spring Boot and Angular application.
 
-- **Backend:** Spring Boot 3.2 with Undertow (lightweight web server)
-- **Frontend:** Angular 17 with standalone components
-- **Web Server:** Nginx (reverse proxy + static file serving)
-- **Platform:** AWS EC2 t2.micro (optimized for 1GB RAM)
-- **CI/CD:** CodePipeline → CodeBuild → CodeDeploy
+## 🚀 Key Features
+
+- **Full-Stack Application**: Java Spring Boot 3.2 backend with Angular 17 frontend
+- **Automated Pipeline**: End-to-end automation using AWS CodePipeline
+- **Infrastructure as Code**: Entire infrastructure provisioned via AWS CLI scripts
+- **Zero Downtime Deployment**: Blue/Green deployment strategy using AWS CodeDeploy
+- **Optimized Performance**: memory-efficient configuration for t2.micro instances
+- **Monitoring**: Integrated health checks and uptime monitoring
+
+## 🏗️ Architecture
+
+![Architecture Diagram](docs/architecture-diagram.png)
+
+The pipeline consists of:
+1. **Source**: GitHub repository with webhooks
+2. **Build**: AWS CodeBuild compiles Java & Angular, runs tests
+3. **Deploy**: AWS CodeDeploy manages deployment to EC2 fleet
+4. **Hosting**: Nginx reverse proxy serving Angular and proxying API calls to Spring Boot
 
 ## 📁 Project Structure
 
