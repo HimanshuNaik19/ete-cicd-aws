@@ -20,7 +20,33 @@ A complete, production-ready CI/CD pipeline implementation demonstrating modern 
 
 ## 🏗️ Architecture
 
-![Architecture Diagram](docs/architecture-diagram.png)
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    User((User)) -->|HTTPS| ALB(Application Load Balancer)
+    ALB -->|Forward| TG(Target Group)
+    TG -->|Traffic| EC2[EC2 Instance]
+    
+    subgraph "AWS Cloud"
+        subgraph "VPC"
+            EC2
+            style EC2 fill:#f9f,stroke:#333,stroke-width:2px
+        end
+        
+        subgraph "CI/CD Pipeline"
+            CodePipeline -->|Source| GitHub[GitHub Repo]
+            GitHub -->|Trigger| CodeBuild
+            CodeBuild -->|Artifacts| S3[S3 Bucket]
+            S3 -->|Deploy| CodeDeploy
+            CodeDeploy -->|Update| EC2
+        end
+    end
+    
+    EC2 -->|Run| Java[Spring Boot Backend]
+    EC2 -->|Serve| Angular[Angular Frontend]
+    Angular -->|API Calls| Java
+```
 
 The pipeline consists of:
 1. **Source**: GitHub repository with webhooks
